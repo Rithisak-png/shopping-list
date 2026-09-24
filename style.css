@@ -64,3 +64,19 @@ th {
 .grand-total {
     text-align: right;
 }
+.products-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.products-header h2 {
+    margin: 0;
+}
+
+.products-header select {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
