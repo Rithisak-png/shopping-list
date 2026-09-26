@@ -2,78 +2,201 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Buying List</title>
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-    <div class="container">
+<!-- ══════════════════════════════════════════════
+     LOGIN SCREEN
+══════════════════════════════════════════════ -->
+<div id="loginScreen">
+    <div class="login-card">
+        <div class="login-icon">🛒</div>
+        <h1>Buying List</h1>
+        <p>Enter your PIN to access the list</p>
 
-        <h1>🛒 Buying List</h1>
-
-        <div class="form-box">
-
-            <label>Product Name</label>
-            <input type="text" id="productName" placeholder="Enter product name">
-
-            <label>Who wants to buy it?</label>
-            <input type="text" id="buyer" placeholder="Enter buyer name">
-
-            <label>Quantity</label>
-            <input type="number" id="quantity" value="1" min="1">
-
-            <label>Price Each ($)</label>
-            <input type="number" id="price" placeholder="Enter price">
-
-            <label>Product Link</label>
-            <input type="url" id="link" placeholder="https://...">
-
-            
-
-            <button onclick="addProduct()">+ Add Product</button>
-
+        <div id="loginError">
+            ❌ Incorrect PIN. Please try again.
         </div>
 
-        <div class="products-header">
+        <div class="login-field">
+            <label>PIN Code</label>
+            <div class="pin-input-wrap">
+                <input
+                    type="password"
+                    id="pinInput"
+                    maxlength="8"
+                    placeholder="••••••••"
+                    inputmode="numeric"
+                    onkeydown="if(event.key==='Enter') doLogin()"
+                >
+                <button class="pin-toggle" onclick="togglePin()" title="Show/hide PIN">👁</button>
+            </div>
+        </div>
 
-    <h2>Products</h2>
-
-    <select id="sortSelect" onchange="loadProducts()">
-        <option value="newest">Newest First</option>
-        <option value="az">Name A → Z</option>
-        <option value="za">Name Z → A</option>
-    </select>
+        <button class="btn-primary" onclick="doLogin()">Sign In →</button>
+    </div>
 </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Image</th>
-                    <th>Product</th>
-                    <th>Buyer</th>
-                    <th>Qty</th>
-                    <th>Price Each</th>
-                    <th>Total</th>
-                    <th>Link</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
 
-            <tbody id="productTable">
-            </tbody>
-        </table>
+<!-- ══════════════════════════════════════════════
+     MAIN APP
+══════════════════════════════════════════════ -->
+<div id="appScreen">
 
-        <h2 class="grand-total">
-            Grand Total: $<span id="grandTotal">0.00</span>
-        </h2>
+    <header class="topbar">
+        <div class="topbar-brand">
+            <span>🛒</span> Buying List
+        </div>
+        <button class="btn-logout" onclick="doLogout()">Sign Out</button>
+    </header>
 
+    <main class="main">
+
+        <!-- ADD PRODUCT FORM -->
+        <div class="card">
+            <div class="card-header">
+                <span>➕</span>
+                <h2>Add Product</h2>
+            </div>
+            <div class="card-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Product Name</label>
+                        <input type="text" id="productName" placeholder="e.g. Wireless Keyboard">
+                    </div>
+                    <div class="form-group">
+                        <label>Buyer</label>
+                        <input type="text" id="buyer" placeholder="e.g. Alice">
+                    </div>
+                    <div class="form-group">
+                        <label>Quantity</label>
+                        <input type="number" id="quantity" value="1" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Price Each ($)</label>
+                        <input type="number" id="price" placeholder="0.00" min="0" step="0.01">
+                    </div>
+                    <div class="form-group full">
+                        <label>Product Link</label>
+                        <input type="url" id="link" placeholder="https://...">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button class="btn-add" onclick="addProduct()">
+                        <span>+</span> Add Product
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRODUCTS TABLE -->
+        <div class="card">
+            <div class="table-controls">
+                <h2>Products</h2>
+                <select id="sortSelect" onchange="loadProducts()">
+                    <option value="newest">Newest First</option>
+                    <option value="az">Name A → Z</option>
+                    <option value="za">Name Z → A</option>
+                </select>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Product</th>
+                            <th>Buyer</th>
+                            <th>Qty</th>
+                            <th>Price Each</th>
+                            <th>Total</th>
+                            <th>Link</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productTable"></tbody>
+                </table>
+            </div>
+
+            <div class="total-row">
+                <span class="total-label">Grand Total</span>
+                <span class="total-amount">$<span id="grandTotal">0.00</span></span>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     EDIT MODAL
+══════════════════════════════════════════════ -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>✏️ Edit Product</h3>
+            <button class="modal-close" onclick="closeEditModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="editId">
+            <div class="form-group">
+                <label>Product Name</label>
+                <input type="text" id="editName" placeholder="Product name">
+            </div>
+            <div class="form-group">
+                <label>Buyer</label>
+                <input type="text" id="editBuyer" placeholder="Buyer name">
+            </div>
+            <div class="form-group">
+                <label>Quantity</label>
+                <input type="number" id="editQuantity" min="1">
+            </div>
+            <div class="form-group">
+                <label>Price Each ($)</label>
+                <input type="number" id="editPrice" min="0" step="0.01">
+            </div>
+            <div class="form-group">
+                <label>Product Link</label>
+                <input type="url" id="editLink" placeholder="https://...">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="closeEditModal()">Cancel</button>
+            <button class="btn-save" onclick="saveEdit()">Save Changes</button>
+        </div>
     </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- ══════════════════════════════════════════════
+     DELETE CONFIRM MODAL
+══════════════════════════════════════════════ -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal del-modal">
+        <div class="modal-header">
+            <span></span>
+            <button class="modal-close" onclick="closeDeleteModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="del-icon">🗑️</div>
+            <h4>Delete Product?</h4>
+            <p>This will permanently remove <strong id="deleteProductName"></strong> from your list.</p>
+            <input type="hidden" id="deleteId">
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+            <button class="btn-danger" onclick="confirmDelete()">Yes, Delete</button>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="script.js"></script>
 
 </body>
