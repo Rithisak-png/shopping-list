@@ -16,6 +16,75 @@ const supabaseClient =
 
 
 // ==========================================
+// LOGIN
+// ==========================================
+
+const CORRECT_PIN = "66668888";
+
+function doLogin() {
+
+    const pin =
+        document.getElementById("pinInput").value;
+
+    const err =
+        document.getElementById("loginError");
+
+    if (pin === CORRECT_PIN) {
+
+        err.style.display = "none";
+
+        document.getElementById("loginScreen").style.display = "none";
+        document.getElementById("appScreen").style.display   = "block";
+
+        loadProducts();
+
+    } else {
+
+        err.style.display = "block";
+
+        document.getElementById("pinInput").value = "";
+        document.getElementById("pinInput").focus();
+    }
+}
+
+function doLogout() {
+
+    document.getElementById("appScreen").style.display   = "none";
+    document.getElementById("loginScreen").style.display = "flex";
+
+    document.getElementById("pinInput").value         = "";
+    document.getElementById("loginError").style.display = "none";
+}
+
+function togglePin() {
+
+    const input =
+        document.getElementById("pinInput");
+
+    input.type =
+        input.type === "password" ? "text" : "password";
+}
+
+
+// ==========================================
+// TOAST NOTIFICATION
+// ==========================================
+
+function showToast(message, type = "success") {
+
+    const old = document.querySelector(".toast");
+    if (old) old.remove();
+
+    const t = document.createElement("div");
+    t.className  = `toast toast-${type}`;
+    t.textContent = message;
+    document.body.appendChild(t);
+
+    setTimeout(() => t.remove(), 3000);
+}
+
+
+// ==========================================
 // ADD PRODUCT
 // ==========================================
 
@@ -42,22 +111,22 @@ async function addProduct() {
     // --------------------------------------
 
     if (productName === "") {
-        alert("Please enter product name.");
+        showToast("Please enter product name.", "error");
         return;
     }
 
     if (buyer === "") {
-        alert("Please enter buyer name.");
+        showToast("Please enter buyer name.", "error");
         return;
     }
 
     if (!Number.isInteger(quantity) || quantity <= 0) {
-        alert("Quantity must be greater than 0.");
+        showToast("Quantity must be greater than 0.", "error");
         return;
     }
 
     if (isNaN(price) || price < 0) {
-        alert("Please enter a valid price.");
+        showToast("Please enter a valid price.", "error");
         return;
     }
 
@@ -72,12 +141,12 @@ async function addProduct() {
             .insert([
                 {
                     product_name: productName,
-                    buyer: buyer,
-                    quantity: quantity,
-                    price_each: price,
+                    buyer:        buyer,
+                    quantity:     quantity,
+                    price_each:   price,
                     product_link: link,
-                    image_url: null,
-                    status: "Not Bought"
+                    image_url:    null,
+                    status:       "Not Bought"
                 }
             ])
             .select();
@@ -88,21 +157,14 @@ async function addProduct() {
     // --------------------------------------
 
     if (error) {
-
         console.error("ADD PRODUCT ERROR:", error);
-
-        alert(
-            "Error adding product:\n" +
-            error.message
-        );
-
+        showToast("Error adding product: " + error.message, "error");
         return;
     }
 
 
     console.log("Product added:", data);
-
-    alert("✅ Product added!");
+    showToast("✅ Product added successfully!");
 
 
     // --------------------------------------
@@ -110,18 +172,13 @@ async function addProduct() {
     // --------------------------------------
 
     document.getElementById("productName").value = "";
-    document.getElementById("buyer").value = "";
-    document.getElementById("quantity").value = 1;
-    document.getElementById("price").value = "";
-    document.getElementById("link").value = "";
+    document.getElementById("buyer").value       = "";
+    document.getElementById("quantity").value    = 1;
+    document.getElementById("price").value       = "";
+    document.getElementById("link").value        = "";
 
-    // Clear image input if it exists
-    const imageInput =
-        document.getElementById("image");
-
-    if (imageInput) {
-        imageInput.value = "";
-    }
+    const imageInput = document.getElementById("image");
+    if (imageInput) imageInput.value = "";
 
 
     // --------------------------------------
@@ -142,9 +199,7 @@ async function loadProducts() {
         document.getElementById("sortSelect");
 
     const sortValue =
-        sortSelect
-            ? sortSelect.value
-            : "newest";
+        sortSelect ? sortSelect.value : "newest";
 
 
     // --------------------------------------
@@ -165,27 +220,21 @@ async function loadProducts() {
 
         query = query.order(
             "product_name",
-            {
-                ascending: true
-            }
+            { ascending: true }
         );
 
     } else if (sortValue === "za") {
 
         query = query.order(
             "product_name",
-            {
-                ascending: false
-            }
+            { ascending: false }
         );
 
     } else {
 
         query = query.order(
             "created_at",
-            {
-                ascending: false
-            }
+            { ascending: false }
         );
     }
 
@@ -194,22 +243,11 @@ async function loadProducts() {
     // GET DATA
     // --------------------------------------
 
-    const { data, error } =
-        await query;
-
+    const { data, error } = await query;
 
     if (error) {
-
-        console.error(
-            "LOAD PRODUCTS ERROR:",
-            error
-        );
-
-        alert(
-            "Error loading products:\n" +
-            error.message
-        );
-
+        console.error("LOAD PRODUCTS ERROR:", error);
+        showToast("Error loading products: " + error.message, "error");
         return;
     }
 
@@ -225,6 +263,26 @@ async function loadProducts() {
 
 
     // --------------------------------------
+    // EMPTY STATE
+    // --------------------------------------
+
+    if (data.length === 0) {
+        table.innerHTML = `
+            <tr>
+                <td colspan="9">
+                    <div class="empty-state">
+                        <div style="font-size:40px">📋</div>
+                        <p>No products yet. Add one above!</p>
+                    </div>
+                </td>
+            </tr>
+        `;
+        document.getElementById("grandTotal").textContent = "0.00";
+        return;
+    }
+
+
+    // --------------------------------------
     // GRAND TOTAL
     // --------------------------------------
 
@@ -237,44 +295,42 @@ async function loadProducts() {
 
     data.forEach(product => {
 
-        const quantity =
-            Number(product.quantity);
-
-        const price =
-            Number(product.price_each);
-
-        const total =
-            quantity * price;
-
-        grandTotal += total;
+        const quantity = Number(product.quantity);
+        const price    = Number(product.price_each);
+        const total    = quantity * price;
+        grandTotal    += total;
 
 
         // Create row
-        const row =
-            document.createElement("tr");
+        const row = document.createElement("tr");
 
 
         // ----------------------------------
         // IMAGE
         // ----------------------------------
 
-        let imageHTML = "No image";
+        const imgCell = product.image_url
+            ? `<img src="${product.image_url}" alt="${product.product_name}" class="product-img">`
+            : `<div class="no-img">📦</div>`;
 
-        if (product.image_url) {
 
-            imageHTML = `
-                <img
-                    src="${product.image_url}"
-                    alt="${product.product_name}"
-                    style="
-                        width:80px;
-                        height:80px;
-                        object-fit:cover;
-                        border-radius:8px;
-                    "
-                >
-            `;
-        }
+        // ----------------------------------
+        // LINK
+        // ----------------------------------
+
+        const linkCell = product.product_link
+            ? `<a href="${product.product_link}" target="_blank" rel="noopener noreferrer" class="link-btn">🔗 Open</a>`
+            : `<span style="color:var(--text-muted);font-size:12px">—</span>`;
+
+
+        // ----------------------------------
+        // STATUS CLASS
+        // ----------------------------------
+
+        const statusClass =
+            product.status === "Bought"
+                ? "status-bought"
+                : "status-not-bought";
 
 
         // ----------------------------------
@@ -282,106 +338,31 @@ async function loadProducts() {
         // ----------------------------------
 
         row.innerHTML = `
-
+            <td>${imgCell}</td>
+            <td class="product-name">${escapeHtml(product.product_name)}</td>
+            <td>${escapeHtml(product.buyer)}</td>
+            <td>${quantity}</td>
+            <td>$${price.toFixed(2)}</td>
+            <td><strong>$${total.toFixed(2)}</strong></td>
+            <td>${linkCell}</td>
             <td>
-                ${imageHTML}
-            </td>
-
-            <td>
-                ${product.product_name}
-            </td>
-
-            <td>
-                ${product.buyer}
-            </td>
-
-            <td>
-                ${quantity}
-            </td>
-
-            <td>
-                $${price.toFixed(2)}
-            </td>
-
-            <td>
-                $${total.toFixed(2)}
-            </td>
-
-            <td>
-                ${
-                    product.product_link
-                    ?
-                    `
-                    <a
-                        href="${product.product_link}"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        Open Link
-                    </a>
-                    `
-                    :
-                    "No link"
-                }
-            </td>
-
-            <td>
-
                 <select
-                    onchange="
-                        changeStatus(
-                            ${product.id},
-                            this.value
-                        )
-                    "
+                    class="status-select ${statusClass}"
+                    onchange="changeStatus(${product.id}, this.value, this)"
                 >
-
-                    <option
-                        value="Not Bought"
-                        ${
-                            product.status === "Not Bought"
-                            ? "selected"
-                            : ""
-                        }
-                    >
-                        Not Bought
-                    </option>
-
-                    <option
-                        value="Bought"
-                        ${
-                            product.status === "Bought"
-                            ? "selected"
-                            : ""
-                        }
-                    >
-                        Bought
-                    </option>
-
+                    <option value="Not Bought" ${product.status === "Not Bought" ? "selected" : ""}>Not Bought</option>
+                    <option value="Bought"     ${product.status === "Bought"     ? "selected" : ""}>Bought</option>
                 </select>
-
             </td>
-
             <td>
-
-                <button
-                    onclick="editProduct(${product.id})"
-                >
-                    ✏️ Edit
-                </button>
-
-                <button
-                    onclick="deleteProduct(${product.id})"
-                >
-                    🗑️ Delete
-                </button>
-
+                <div class="action-btns">
+                    <button class="btn-edit" onclick="editProduct(${product.id})">✏️ Edit</button>
+                    <button class="btn-del"  onclick="openDeleteModal(${product.id}, '${escapeHtml(product.product_name)}')">🗑️ Delete</button>
+                </div>
             </td>
         `;
 
-
         table.appendChild(row);
-
     });
 
 
@@ -390,140 +371,101 @@ async function loadProducts() {
     // --------------------------------------
 
     document.getElementById("grandTotal")
-        .textContent =
-        grandTotal.toFixed(2);
+        .textContent = grandTotal.toFixed(2);
 }
 
 
 // ==========================================
-// EDIT PRODUCT
+// ESCAPE HTML (security helper)
+// ==========================================
+
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g,  "&amp;")
+        .replace(/</g,  "&lt;")
+        .replace(/>/g,  "&gt;")
+        .replace(/"/g,  "&quot;")
+        .replace(/'/g,  "&#39;");
+}
+
+
+// ==========================================
+// EDIT PRODUCT — uses modal
 // ==========================================
 
 async function editProduct(id) {
 
     // Get current product
-    const {
-        data: product,
-        error: loadError
-    } =
+    const { data: product, error: loadError } =
         await supabaseClient
             .from("products")
             .select("*")
             .eq("id", id)
             .single();
 
-
     if (loadError) {
-
-        console.error(
-            "EDIT LOAD ERROR:",
-            loadError
-        );
-
-        alert(
-            "Error loading product:\n" +
-            loadError.message
-        );
-
+        console.error("EDIT LOAD ERROR:", loadError);
+        showToast("Error loading product: " + loadError.message, "error");
         return;
     }
 
 
     // --------------------------------------
-    // PRODUCT NAME
+    // FILL MODAL FIELDS
     // --------------------------------------
 
-    const productName =
-        prompt(
-            "Product Name:",
-            product.product_name
-        );
+    document.getElementById("editId").value       = product.id;
+    document.getElementById("editName").value     = product.product_name;
+    document.getElementById("editBuyer").value    = product.buyer;
+    document.getElementById("editQuantity").value = product.quantity;
+    document.getElementById("editPrice").value    = product.price_each;
+    document.getElementById("editLink").value     = product.product_link || "";
 
-    if (productName === null) {
+
+    // --------------------------------------
+    // OPEN MODAL
+    // --------------------------------------
+
+    document.getElementById("editModal")
+        .classList.add("open");
+}
+
+function closeEditModal() {
+    document.getElementById("editModal")
+        .classList.remove("open");
+}
+
+async function saveEdit() {
+
+    const id       = document.getElementById("editId").value;
+    const name     = document.getElementById("editName").value.trim();
+    const buyer    = document.getElementById("editBuyer").value.trim();
+    const quantity = Number(document.getElementById("editQuantity").value);
+    const price    = Number(document.getElementById("editPrice").value);
+    const link     = document.getElementById("editLink").value.trim();
+
+
+    // --------------------------------------
+    // VALIDATE
+    // --------------------------------------
+
+    if (!name) {
+        showToast("Product name is required.", "error");
         return;
     }
 
-
-    // --------------------------------------
-    // BUYER
-    // --------------------------------------
-
-    const buyer =
-        prompt(
-            "Buyer:",
-            product.buyer
-        );
-
-    if (buyer === null) {
+    if (!buyer) {
+        showToast("Buyer name is required.", "error");
         return;
     }
-
-
-    // --------------------------------------
-    // QUANTITY
-    // --------------------------------------
-
-    const quantityInput =
-        prompt(
-            "Quantity:",
-            product.quantity
-        );
-
-    if (quantityInput === null) {
-        return;
-    }
-
-    const quantity =
-        Number(quantityInput);
 
     if (!Number.isInteger(quantity) || quantity <= 0) {
-
-        alert(
-            "Quantity must be a positive whole number."
-        );
-
+        showToast("Quantity must be a positive whole number.", "error");
         return;
     }
-
-
-    // --------------------------------------
-    // PRICE
-    // --------------------------------------
-
-    const priceInput =
-        prompt(
-            "Price Each:",
-            product.price_each
-        );
-
-    if (priceInput === null) {
-        return;
-    }
-
-    const price =
-        Number(priceInput);
 
     if (isNaN(price) || price < 0) {
-
-        alert(
-            "Please enter a valid price."
-        );
-
-        return;
-    }
-
-
-    // --------------------------------------
-    // PRODUCT LINK
-    // --------------------------------------
-
-    const link =
-        prompt(
-            "Product Link:",
-            product.product_link || ""
-        );
-
-    if (link === null) {
+        showToast("Please enter a valid price.", "error");
         return;
     }
 
@@ -536,53 +478,51 @@ async function editProduct(id) {
         await supabaseClient
             .from("products")
             .update({
-                product_name: productName.trim(),
-                buyer: buyer.trim(),
-                quantity: quantity,
-                price_each: price,
-                product_link: link.trim()
+                product_name: name,
+                buyer:        buyer,
+                quantity:     quantity,
+                price_each:   price,
+                product_link: link
             })
             .eq("id", id);
 
-
     if (updateError) {
-
-        console.error(
-            "UPDATE ERROR:",
-            updateError
-        );
-
-        alert(
-            "Error updating product:\n" +
-            updateError.message
-        );
-
+        console.error("UPDATE ERROR:", updateError);
+        showToast("Error updating product: " + updateError.message, "error");
         return;
     }
 
 
-    alert("✅ Product updated!");
-
+    closeEditModal();
+    showToast("✅ Product updated!");
     loadProducts();
 }
 
 
 // ==========================================
-// DELETE PRODUCT
+// DELETE PRODUCT — uses modal
 // ==========================================
 
-async function deleteProduct(id) {
+function openDeleteModal(id, name) {
 
-    const confirmDelete =
-        confirm(
-            "Are you sure you want to delete this product?"
-        );
+    document.getElementById("deleteId").value = id;
 
+    document.getElementById("deleteProductName")
+        .textContent = name;
 
-    if (!confirmDelete) {
-        return;
-    }
+    document.getElementById("deleteModal")
+        .classList.add("open");
+}
 
+function closeDeleteModal() {
+    document.getElementById("deleteModal")
+        .classList.remove("open");
+}
+
+async function confirmDelete() {
+
+    const id =
+        document.getElementById("deleteId").value;
 
     const { error } =
         await supabaseClient
@@ -590,25 +530,14 @@ async function deleteProduct(id) {
             .delete()
             .eq("id", id);
 
-
     if (error) {
-
-        console.error(
-            "DELETE ERROR:",
-            error
-        );
-
-        alert(
-            "Error deleting product:\n" +
-            error.message
-        );
-
+        console.error("DELETE ERROR:", error);
+        showToast("Error deleting product: " + error.message, "error");
         return;
     }
 
-
-    alert("🗑️ Product deleted!");
-
+    closeDeleteModal();
+    showToast("🗑️ Product deleted.");
     loadProducts();
 }
 
@@ -617,39 +546,47 @@ async function deleteProduct(id) {
 // CHANGE STATUS
 // ==========================================
 
-async function changeStatus(id, status) {
+async function changeStatus(id, status, selectEl) {
 
     const { error } =
         await supabaseClient
             .from("products")
-            .update({
-                status: status
-            })
+            .update({ status: status })
             .eq("id", id);
 
-
     if (error) {
-
-        console.error(
-            "STATUS UPDATE ERROR:",
-            error
-        );
-
-        alert(
-            "Error changing status:\n" +
-            error.message
-        );
-
+        console.error("STATUS UPDATE ERROR:", error);
+        showToast("Error changing status: " + error.message, "error");
         return;
     }
 
+    // Update pill color immediately
+    selectEl.className =
+        "status-select " +
+        (status === "Bought" ? "status-bought" : "status-not-bought");
 
     loadProducts();
 }
 
 
 // ==========================================
+// CLOSE MODALS ON OVERLAY CLICK
+// ==========================================
+
+document.getElementById("editModal")
+    .addEventListener("click", function(e) {
+        if (e.target === this) closeEditModal();
+    });
+
+document.getElementById("deleteModal")
+    .addEventListener("click", function(e) {
+        if (e.target === this) closeDeleteModal();
+    });
+
+
+// ==========================================
 // START WEBSITE
 // ==========================================
 
-loadProducts();
+// (loadProducts is called after login — not on page load,
+//  because the user must enter the PIN first)
