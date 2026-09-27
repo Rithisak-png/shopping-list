@@ -473,8 +473,8 @@ async function loadProducts() {
             <td class="product-name">${escapeHtml(product.product_name)}</td>
             <td>${escapeHtml(product.buyer)}</td>
             <td>${quantity}</td>
-            <td>$${price.toFixed(2)}</td>
-            <td><strong>$${total.toFixed(2)}</strong></td>
+            <td><strong>¥${price.toFixed(2)}</strong></td>
+            <td><strong>¥${total.toFixed(2)}</strong></td>
             <td>${linkCell}</td>
             <td>${noteCell}</td>
             <td>
