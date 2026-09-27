@@ -64,29 +64,61 @@
             </div>
             <div class="card-body">
                 <div class="form-grid">
+
                     <div class="form-group">
                         <label>Product Name</label>
                         <input type="text" id="productName" placeholder="e.g. Wireless Keyboard">
                     </div>
+
                     <div class="form-group">
                         <label>Buyer</label>
                         <input type="text" id="buyer" placeholder="e.g. Alice">
                     </div>
+
                     <div class="form-group">
                         <label>Quantity</label>
                         <input type="number" id="quantity" value="1" min="1">
                     </div>
+
                     <div class="form-group">
                         <label>Price Each ($)</label>
                         <input type="number" id="price" placeholder="0.00" min="0" step="0.01">
                     </div>
+
                     <div class="form-group full">
                         <label>Product Link</label>
                         <input type="url" id="link" placeholder="https://...">
                     </div>
+
+                    <div class="form-group full">
+                        <label>Note</label>
+                        <input type="text" id="note" placeholder="e.g. Buy from Amazon only">
+                    </div>
+
+                    <div class="form-group full">
+                        <label>Image (PNG or JPG)</label>
+                        <div class="file-upload-wrap" id="fileUploadWrap">
+                            <input
+                                type="file"
+                                id="imageFile"
+                                accept="image/png, image/jpeg"
+                                onchange="previewImage(this)"
+                            >
+                            <div class="file-upload-ui" onclick="document.getElementById('imageFile').click()">
+                                <span class="file-upload-icon">🖼️</span>
+                                <span class="file-upload-text">Click to choose image</span>
+                                <span class="file-upload-hint">PNG or JPG only</span>
+                            </div>
+                        </div>
+                        <div class="image-preview-wrap" id="imagePreviewWrap" style="display:none;">
+                            <img id="imagePreview" src="" alt="Preview">
+                            <button class="btn-remove-img" onclick="clearImage()">✕ Remove</button>
+                        </div>
+                    </div>
+
                 </div>
                 <div class="form-actions">
-                    <button class="btn-add" onclick="addProduct()">
+                    <button class="btn-add" onclick="addProduct()" id="btnAdd">
                         <span>+</span> Add Product
                     </button>
                 </div>
@@ -115,6 +147,7 @@
                             <th>Price Each</th>
                             <th>Total</th>
                             <th>Link</th>
+                            <th>Note</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
@@ -134,6 +167,14 @@
 
 
 <!-- ══════════════════════════════════════════════
+     IMAGE LIGHTBOX
+══════════════════════════════════════════════ -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+    <img id="lightboxImg" src="" alt="Full image">
+</div>
+
+
+<!-- ══════════════════════════════════════════════
      EDIT MODAL
 ══════════════════════════════════════════════ -->
 <div class="modal-overlay" id="editModal">
@@ -144,30 +185,62 @@
         </div>
         <div class="modal-body">
             <input type="hidden" id="editId">
+
             <div class="form-group">
                 <label>Product Name</label>
                 <input type="text" id="editName" placeholder="Product name">
             </div>
+
             <div class="form-group">
                 <label>Buyer</label>
                 <input type="text" id="editBuyer" placeholder="Buyer name">
             </div>
+
             <div class="form-group">
                 <label>Quantity</label>
                 <input type="number" id="editQuantity" min="1">
             </div>
+
             <div class="form-group">
                 <label>Price Each ($)</label>
                 <input type="number" id="editPrice" min="0" step="0.01">
             </div>
+
             <div class="form-group">
                 <label>Product Link</label>
                 <input type="url" id="editLink" placeholder="https://...">
             </div>
+
+            <div class="form-group">
+                <label>Note</label>
+                <input type="text" id="editNote" placeholder="e.g. Buy from Amazon only">
+            </div>
+
+            <div class="form-group">
+                <label>Image (PNG or JPG) — leave empty to keep current</label>
+                <div class="file-upload-wrap" id="editFileUploadWrap">
+                    <input
+                        type="file"
+                        id="editImageFile"
+                        accept="image/png, image/jpeg"
+                        onchange="previewEditImage(this)"
+                    >
+                    <div class="file-upload-ui" onclick="document.getElementById('editImageFile').click()">
+                        <span class="file-upload-icon">🖼️</span>
+                        <span class="file-upload-text">Click to choose new image</span>
+                        <span class="file-upload-hint">PNG or JPG only</span>
+                    </div>
+                </div>
+                <div class="image-preview-wrap" id="editImagePreviewWrap" style="display:none;">
+                    <img id="editImagePreview" src="" alt="Preview">
+                    <button class="btn-remove-img" onclick="clearEditImage()">✕ Remove image</button>
+                </div>
+            </div>
+
         </div>
         <div class="modal-footer">
             <button class="btn-secondary" onclick="closeEditModal()">Cancel</button>
-            <button class="btn-save" onclick="saveEdit()">Save Changes</button>
+            <button class="btn-save" onclick="saveEdit()" id="btnSaveEdit">Save Changes</button>
         </div>
     </div>
 </div>
@@ -187,6 +260,7 @@
             <h4>Delete Product?</h4>
             <p>This will permanently remove <strong id="deleteProductName"></strong> from your list.</p>
             <input type="hidden" id="deleteId">
+            <input type="hidden" id="deleteImageUrl">
         </div>
         <div class="modal-footer">
             <button class="btn-secondary" onclick="closeDeleteModal()">Cancel</button>
