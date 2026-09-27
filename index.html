@@ -67,12 +67,12 @@
 
                     <div class="form-group">
                         <label>Product Name</label>
-                        <input type="text" id="productName" placeholder="e.g. Wireless Keyboard">
+                        <input type="text" id="productName" placeholder="e.g. ESP32 Dev Board">
                     </div>
 
                     <div class="form-group">
-                        <label>Buyer</label>
-                        <input type="text" id="buyer" placeholder="e.g. Alice">
+                        <label>Requester</label>
+                        <input type="text" id="buyer" placeholder="e.g. Sura">
                     </div>
 
                     <div class="form-group">
@@ -81,7 +81,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Price Each ($)</label>
+                        <label>Price Each (¥)</label>
                         <input type="number" id="price" placeholder="0.00" min="0" step="0.01">
                     </div>
 
@@ -92,7 +92,7 @@
 
                     <div class="form-group full">
                         <label>Note</label>
-                        <input type="text" id="note" placeholder="e.g. Buy from Amazon only">
+                        <input type="text" id="note" placeholder="e.g. Buy from Taobao only">
                     </div>
 
                     <div class="form-group full">
@@ -128,7 +128,7 @@
         <!-- PRODUCTS TABLE -->
         <div class="card">
             <div class="table-controls">
-                <h2>Products</h2>
+                <h2>Products List</h2>
                 <select id="sortSelect" onchange="loadProducts()">
                     <option value="newest">Newest First</option>
                     <option value="az">Name A → Z</option>
