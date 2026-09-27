@@ -56,6 +56,46 @@
 
     <main class="main">
 
+        <!-- SUMMARY STATS -->
+        <div class="stats-bar" id="statsBar">
+            <div class="stat-card">
+                <div class="stat-icon">📦</div>
+                <div class="stat-info">
+                    <div class="stat-value" id="statTotal">0</div>
+                    <div class="stat-label">Total Items</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-info">
+                    <div class="stat-value" id="statBought">0</div>
+                    <div class="stat-label">Bought</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🕐</div>
+                <div class="stat-info">
+                    <div class="stat-value" id="statPending">0</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+            </div>
+            <div class="stat-card stat-card--accent">
+                <div class="stat-icon">💰</div>
+                <div class="stat-info">
+                    <div class="stat-value" id="statSpent">¥0.00</div>
+                    <div class="stat-label">Total Spent</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LIST TABS -->
+        <div class="card">
+            <div class="list-tabs-bar">
+                <div class="list-tabs" id="listTabs"></div>
+                <button class="btn-new-list" onclick="openNewListModal()">＋ New List</button>
+            </div>
+        </div>
+
         <!-- ADD PRODUCT FORM -->
         <div class="card">
             <div class="card-header">
@@ -128,18 +168,45 @@
         <!-- PRODUCTS TABLE -->
         <div class="card">
             <div class="table-controls">
-                <h2>Products List</h2>
-                <select id="sortSelect" onchange="loadProducts()">
-                    <option value="newest">Newest First</option>
-                    <option value="az">Name A → Z</option>
-                    <option value="za">Name Z → A</option>
-                </select>
+                <h2 id="tableTitle">Products List</h2>
+                <div class="table-controls-right">
+                    <!-- Search bar -->
+                    <div class="search-wrap">
+                        <span class="search-icon">🔍</span>
+                        <input
+                            type="text"
+                            id="searchInput"
+                            class="search-input"
+                            placeholder="Search product or buyer…"
+                            oninput="loadProducts()"
+                        >
+                        <button class="search-clear" id="searchClear" onclick="clearSearch()" style="display:none">✕</button>
+                    </div>
+                    <select id="sortSelect" onchange="loadProducts()">
+                        <option value="newest">Newest First</option>
+                        <option value="az">Name A → Z</option>
+                        <option value="za">Name Z → A</option>
+                    </select>
+                </div>
             </div>
 
+            <!-- Bulk actions bar (hidden until items selected) -->
+            <div class="bulk-bar" id="bulkBar" style="display:none">
+                <label class="bulk-select-all">
+                    <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)">
+                    <span id="selectedCount">0 selected</span>
+                </label>
+                <button class="btn-bulk-delete" onclick="bulkDelete()">🗑️ Delete Selected</button>
+            </div>
+
+            <!-- Desktop table -->
             <div class="table-wrap">
                 <table>
                     <thead>
                         <tr>
+                            <th class="col-check">
+                                <input type="checkbox" id="selectAllHead" onchange="toggleSelectAll(this)">
+                            </th>
                             <th>Image</th>
                             <th>Product</th>
                             <th>Buyer</th>
@@ -155,6 +222,9 @@
                     <tbody id="productTable"></tbody>
                 </table>
             </div>
+
+            <!-- Mobile cards container -->
+            <div class="mobile-cards" id="mobileCards"></div>
 
             <div class="total-row">
                 <span class="total-label">Grand Total</span>
@@ -265,6 +335,75 @@
         <div class="modal-footer">
             <button class="btn-secondary" onclick="closeDeleteModal()">Cancel</button>
             <button class="btn-danger" onclick="confirmDelete()">Yes, Delete</button>
+        </div>
+    </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     BULK DELETE CONFIRM MODAL
+══════════════════════════════════════════════ -->
+<div class="modal-overlay" id="bulkDeleteModal">
+    <div class="modal del-modal">
+        <div class="modal-header">
+            <span></span>
+            <button class="modal-close" onclick="closeBulkDeleteModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="del-icon">🗑️</div>
+            <h4>Delete Selected Items?</h4>
+            <p>This will permanently delete <strong id="bulkDeleteCount"></strong> selected product(s). This cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="closeBulkDeleteModal()">Cancel</button>
+            <button class="btn-danger" onclick="confirmBulkDelete()">Yes, Delete All</button>
+        </div>
+    </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     NEW LIST MODAL
+══════════════════════════════════════════════ -->
+<div class="modal-overlay" id="newListModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>🗂️ New List</h3>
+            <button class="modal-close" onclick="closeNewListModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>List Name</label>
+                <input type="text" id="newListName" placeholder="e.g. Office Supplies" maxlength="40">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="closeNewListModal()">Cancel</button>
+            <button class="btn-save" onclick="createList()">Create List</button>
+        </div>
+    </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     RENAME/DELETE LIST MODAL
+══════════════════════════════════════════════ -->
+<div class="modal-overlay" id="manageListModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>⚙️ Manage List</h3>
+            <button class="modal-close" onclick="closeManageListModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group" style="margin-bottom:16px">
+                <label>Rename List</label>
+                <input type="text" id="manageListName" placeholder="List name" maxlength="40">
+            </div>
+            <button class="btn-danger" style="width:100%" onclick="deleteCurrentList()">🗑️ Delete This List</button>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="closeManageListModal()">Cancel</button>
+            <button class="btn-save" onclick="renameCurrentList()">Save Name</button>
         </div>
     </div>
 </div>
