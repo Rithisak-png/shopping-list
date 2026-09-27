@@ -216,6 +216,140 @@ body {
 
 
 /* ══════════════════════════════════════════════
+   SUMMARY STATS BAR
+══════════════════════════════════════════════ */
+
+.stats-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.stat-card--accent { border-left: 3px solid var(--accent); }
+
+.stat-icon { font-size: 26px; flex-shrink: 0; }
+
+.stat-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+
+/* ══════════════════════════════════════════════
+   LIST TABS
+══════════════════════════════════════════════ */
+
+.list-tabs-bar {
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.list-tabs {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    flex: 1;
+}
+
+.list-tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: var(--surface2);
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all .15s;
+    white-space: nowrap;
+}
+
+.list-tab:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-light);
+}
+
+.list-tab.active {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: #fff;
+}
+
+.list-tab .tab-manage {
+    background: rgba(255,255,255,.25);
+    border: none;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+    color: inherit;
+    flex-shrink: 0;
+    transition: background .15s;
+}
+
+.list-tab:not(.active) .tab-manage {
+    background: var(--border);
+    color: var(--text-muted);
+}
+
+.list-tab .tab-manage:hover { background: rgba(0,0,0,.2); }
+
+.btn-new-list {
+    padding: 7px 14px;
+    border: 1.5px dashed var(--border);
+    border-radius: 20px;
+    background: none;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all .15s;
+    margin: 0;
+}
+
+.btn-new-list:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-light);
+}
+
+
+/* ══════════════════════════════════════════════
    CARDS
 ══════════════════════════════════════════════ */
 
@@ -371,23 +505,22 @@ body {
 }
 
 .btn-remove-img {
-    padding: 5px 12px;
-    border: 1.5px solid var(--danger);
+    padding: 5px 10px;
+    border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    background: var(--danger-light);
-    color: var(--danger);
+    background: var(--surface);
     font-size: 12px;
-    font-weight: 600;
+    color: var(--danger);
     cursor: pointer;
-    transition: all .15s;
     margin: 0;
+    transition: all .15s;
 }
 
-.btn-remove-img:hover { background: #fecaca; }
+.btn-remove-img:hover { background: var(--danger-light); border-color: var(--danger); }
 
 
 /* ══════════════════════════════════════════════
-   TABLE
+   TABLE CONTROLS (search + sort)
 ══════════════════════════════════════════════ */
 
 .table-controls {
@@ -402,6 +535,62 @@ body {
 
 .table-controls h2  { font-size: 15px; font-weight: 600; }
 
+.table-controls-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Search bar */
+.search-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-icon {
+    position: absolute;
+    left: 10px;
+    font-size: 14px;
+    pointer-events: none;
+}
+
+.search-input {
+    padding: 7px 32px 7px 32px;
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    font-size: 13px;
+    background: var(--surface2);
+    color: var(--text);
+    outline: none;
+    width: 220px;
+    transition: border .15s, background .15s, width .2s;
+    font-family: inherit;
+}
+
+.search-input:focus {
+    border-color: var(--accent);
+    background: #fff;
+    width: 260px;
+}
+
+.search-clear {
+    position: absolute;
+    right: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 12px;
+    padding: 2px 4px;
+    margin: 0;
+    border-radius: 50%;
+    transition: background .15s;
+}
+
+.search-clear:hover { background: var(--border); }
+
 .table-controls select {
     padding: 7px 12px;
     border: 1.5px solid var(--border);
@@ -413,12 +602,64 @@ body {
     outline: none;
 }
 
+
+/* ══════════════════════════════════════════════
+   BULK BAR
+══════════════════════════════════════════════ */
+
+.bulk-bar {
+    padding: 10px 24px;
+    background: #fffbeb;
+    border-bottom: 1px solid #fde68a;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.bulk-select-all {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    user-select: none;
+}
+
+.bulk-select-all input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
+.btn-bulk-delete {
+    padding: 6px 14px;
+    background: var(--danger);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s;
+    margin: 0;
+}
+
+.btn-bulk-delete:hover { background: var(--danger-hover); }
+
+
+/* ══════════════════════════════════════════════
+   TABLE
+══════════════════════════════════════════════ */
+
 .table-wrap { overflow-x: auto; }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 800px;
+    min-width: 860px;
 }
 
 thead th {
@@ -434,6 +675,8 @@ thead th {
     white-space: nowrap;
 }
 
+.col-check { width: 36px; }
+
 tbody tr {
     border-bottom: 1px solid var(--border);
     transition: background .1s;
@@ -441,11 +684,19 @@ tbody tr {
 
 tbody tr:hover         { background: var(--surface2); }
 tbody tr:last-child    { border-bottom: none; }
+tbody tr.row-selected  { background: #eff6ff; }
 
 tbody td {
     padding: 12px 14px;
     vertical-align: middle;
     font-size: 13.5px;
+}
+
+tbody td input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    accent-color: var(--accent);
+    cursor: pointer;
 }
 
 /* Product image in table */
@@ -554,6 +805,127 @@ tbody td {
 }
 
 .empty-state p { font-size: 15px; margin-top: 10px; }
+
+/* Search highlight */
+.highlight {
+    background: #fef9c3;
+    border-radius: 2px;
+    padding: 0 1px;
+}
+
+
+/* ══════════════════════════════════════════════
+   MOBILE PRODUCT CARDS
+   (replaces table on small screens)
+══════════════════════════════════════════════ */
+
+.mobile-cards { display: none; }
+
+.m-card {
+    border-bottom: 1px solid var(--border);
+    padding: 14px 16px;
+}
+
+.m-card:last-child { border-bottom: none; }
+
+.m-card-top {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.m-card-check {
+    padding-top: 2px;
+    flex-shrink: 0;
+}
+
+.m-card-check input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
+.m-card-img {
+    width: 56px;
+    height: 56px;
+    flex-shrink: 0;
+}
+
+.m-card-img img {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    cursor: zoom-in;
+}
+
+.m-card-img .no-img {
+    width: 56px;
+    height: 56px;
+    font-size: 22px;
+}
+
+.m-card-body { flex: 1; min-width: 0; }
+
+.m-card-name {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.m-card-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    margin-bottom: 8px;
+}
+
+.m-card-meta span { display: flex; align-items: center; gap: 4px; }
+
+.m-card-prices {
+    display: flex;
+    gap: 12px;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.m-price-label { color: var(--text-muted); font-size: 11px; }
+.m-price-val   { font-weight: 700; }
+
+.m-card-note {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-bottom: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.m-card-bottom {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.m-card-bottom .status-select { flex-shrink: 0; }
+
+.m-card-bottom .link-btn { font-size: 12px; }
+
+.m-card-actions {
+    display: flex;
+    gap: 6px;
+    margin-left: auto;
+}
 
 
 /* ══════════════════════════════════════════════
@@ -747,10 +1119,35 @@ tbody td {
    RESPONSIVE
 ══════════════════════════════════════════════ */
 
+@media (max-width: 900px) {
+    .stats-bar { grid-template-columns: repeat(2, 1fr); }
+}
+
 @media (max-width: 640px) {
-    .main    { padding: 16px; }
-    .topbar  { padding: 0 16px; }
+    .main    { padding: 12px; }
+    .topbar  { padding: 0 14px; }
     .form-grid { grid-template-columns: 1fr; }
-    .card-header, .card-body, .table-controls, .total-row { padding: 14px 16px; }
+    .card-header, .card-body { padding: 14px 14px; }
+    .table-controls { padding: 12px 14px; gap: 8px; }
+    .table-controls-right { width: 100%; }
+    .search-input { width: 100%; }
+    .search-input:focus { width: 100%; }
+    .search-wrap { flex: 1; }
     .login-card { padding: 36px 24px; }
+    .total-row { padding: 14px 14px; }
+    .bulk-bar  { padding: 10px 14px; }
+    .list-tabs-bar { padding: 10px 12px; gap: 8px; }
+    .stats-bar { grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px; }
+    .stat-card { padding: 12px 14px; gap: 10px; }
+    .stat-value { font-size: 17px; }
+
+    /* Hide desktop table, show mobile cards */
+    .table-wrap { display: none; }
+    .mobile-cards { display: block; }
+}
+
+@media (max-width: 400px) {
+    .stats-bar { grid-template-columns: 1fr 1fr; }
+    .stat-icon { font-size: 20px; }
+    .stat-value { font-size: 15px; }
 }
